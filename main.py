@@ -70,7 +70,7 @@ def main() -> None:
     # ── Inicializar módulos ──────────────────────────────────────────────────
     print("\n  Cargando módulos...")
     display   = Display()
-    speaker   = Speaker()
+    speaker   = Speaker(enabled=not args.no_tts)
     tts_on    = not args.no_tts
 
     try:
@@ -103,8 +103,8 @@ def main() -> None:
             landmarks = detector.get_landmarks_array(result)
             state     = predictor.update(landmarks)
 
-            # ── TTS: solo al confirmar una seña nueva ─────────────────────────
-            if tts_on and state.is_stable and state.label:
+            # ── TTS: reproducir al confirmar una seña (cooldown interno en Speaker) ──
+            if state.is_stable and state.label:
                 speaker.speak(state.display_label)
 
             # ── Renderizado ───────────────────────────────────────────────────

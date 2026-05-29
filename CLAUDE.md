@@ -182,7 +182,7 @@ Lenguaje_Señas/
 | 4 | Captura de dataset LSP | ✅ COMPLETADA |
 | 5 | Entrenamiento del modelo | ✅ COMPLETADA |
 | 6 | Predicción en tiempo real | ✅ COMPLETADA |
-| 7 | Text-to-speech | ⬜ PENDIENTE |
+| 7 | Text-to-speech | ✅ COMPLETADA |
 | 8 | Optimización | ⬜ PENDIENTE |
 | 9 | Interfaz final | ⬜ PENDIENTE |
 
@@ -284,6 +284,16 @@ python main.py
 ---
 
 ## 12. Registro de Cambios (Changelog)
+
+### 2026-05-29 — ETAPA 7
+- Reemplazado stub de TTS con implementación completa en `src/tts/speaker.py`
+- Voz seleccionada: **Paulina** (com.apple.voice.compact.es-MX.Paulina) — español latinoamericano, confirmada disponible en el sistema
+- Orden de prioridad de voces: Paulina (es-MX) → Mónica (es-ES) → Eloquence es-MX → Eloquence es-ES
+- Hilo de audio dedicado (daemon thread "tts-worker") — el loop principal nunca se bloquea
+- Cooldown por etiqueta: dict {texto → timestamp}, ventana de 3s
+- `_wait_ready()` espera hasta 3s a que el engine inicialice antes de continuar
+- Actualizado `main.py`: Speaker recibe `enabled=not args.no_tts`
+- Prueba validada: cooldown funciona, repeticiones ignoradas, stop() limpio
 
 ### 2026-05-29 — ETAPA 6
 - Implementado `src/recognition/predictor.py` — SignPredictor con suavizado temporal (deque N=5, mayoría N-1), PredictionState con display_label y is_stable; reset() manual con tecla R
