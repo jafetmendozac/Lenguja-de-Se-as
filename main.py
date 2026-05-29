@@ -6,6 +6,11 @@ Pipeline:
   Webcam → HandDetector (MediaPipe) → FeatureExtractor
         → SignPredictor (Random Forest) → Display + TTS
 
+Optimizaciones activas (ETAPA 8):
+  - Frame skipping: MediaPipe corre 1 de cada (DETECTION_SKIP_FRAMES+1) frames.
+  - Landmark delta: el modelo no se llama si la mano no se movió.
+  - Confidence smoothing: promedio deslizante para display fluido.
+
 Controles:
   Q  — salir
   R  — reiniciar historial de predicción
@@ -30,9 +35,8 @@ from src.tts.speaker import Speaker
 from src.ui.display import Display
 from config.settings import (
     CAMERA_INDEX,
-    FRAME_WIDTH,
-    FRAME_HEIGHT,
     MODEL_PATH,
+    DETECTION_SKIP_FRAMES,
 )
 
 
@@ -69,9 +73,8 @@ def main() -> None:
 
     # ── Inicializar módulos ──────────────────────────────────────────────────
     print("\n  Cargando módulos...")
-    display   = Display()
-    speaker   = Speaker(enabled=not args.no_tts)
-    tts_on    = not args.no_tts
+    display = Display()
+    speaker = Speaker(enabled=not args.no_tts)
 
     try:
         predictor = SignPredictor()
@@ -80,30 +83,41 @@ def main() -> None:
         print(f"[ERROR] {e}")
         sys.exit(1)
 
-    cam_start_ms = int(time.monotonic() * 1000)
+    cam_start_ms    = int(time.monotonic() * 1000)
+    frame_count     = 0
+    last_result     = None       # Resultado MediaPipe del último frame procesado
+    screenshot_count = 0
 
     print("  Abriendo webcam...")
+    print(f"  Frame skipping: 1 detección cada {DETECTION_SKIP_FRAMES + 1} frames")
     print("  Controles: Q = salir | R = reiniciar | S = screenshot\n")
 
     # ── Loop principal ───────────────────────────────────────────────────────
     with CameraCapture(index=args.camera) as cam, HandDetector(mode="video") as detector:
         print("  Sistema activo. Muestra tu mano a la cámara.\n")
 
-        screenshot_count = 0
-
         while True:
             frame = cam.read()
             if frame is None:
                 continue
 
-            ts_ms  = int(time.monotonic() * 1000) - cam_start_ms
-            result = detector.detect(frame, ts_ms)
+            frame_count += 1
+            ts_ms = int(time.monotonic() * 1000) - cam_start_ms
 
-            # ── Predicción ───────────────────────────────────────────────────
+            # ── Frame skipping: solo detectar cada N+1 frames ────────────────
+            # Los frames saltados reutilizan last_result. Como los landmarks de
+            # MediaPipe son normalizados [0,1], siguen siendo válidos para dibujar
+            # aunque el frame subyacente haya cambiado ligeramente.
+            if DETECTION_SKIP_FRAMES == 0 or frame_count % (DETECTION_SKIP_FRAMES + 1) == 1:
+                last_result = detector.detect(frame, ts_ms)
+
+            result = last_result
+
+            # ── Predicción (con landmark delta interno en predictor) ──────────
             landmarks = detector.get_landmarks_array(result)
             state     = predictor.update(landmarks)
 
-            # ── TTS: reproducir al confirmar una seña (cooldown interno en Speaker) ──
+            # ── TTS: reproducir al confirmar una seña ─────────────────────────
             if state.is_stable and state.label:
                 speaker.speak(state.display_label)
 
@@ -120,10 +134,7 @@ def main() -> None:
                     is_stable=state.is_stable,
                 )
             elif detector.hand_detected(result):
-                display.draw_info_panel(
-                    frame,
-                    status="Mano detectada — analizando...",
-                )
+                display.draw_info_panel(frame, status="Mano detectada — analizando...")
             else:
                 display.draw_no_hand_warning(frame)
                 display.draw_info_panel(frame, status="Muestra tu mano a la cámara")

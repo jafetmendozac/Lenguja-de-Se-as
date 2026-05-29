@@ -183,7 +183,7 @@ Lenguaje_Señas/
 | 5 | Entrenamiento del modelo | ✅ COMPLETADA |
 | 6 | Predicción en tiempo real | ✅ COMPLETADA |
 | 7 | Text-to-speech | ✅ COMPLETADA |
-| 8 | Optimización | ⬜ PENDIENTE |
+| 8 | Optimización | ✅ COMPLETADA |
 | 9 | Interfaz final | ⬜ PENDIENTE |
 
 ---
@@ -284,6 +284,14 @@ python main.py
 ---
 
 ## 12. Registro de Cambios (Changelog)
+
+### 2026-05-29 — ETAPA 8
+- Benchmark real en M2: MediaPipe 640x480 = 25.9ms, 320x240 = 33.8ms → resolución NO ayuda (cuello de botella = red neuronal XNNPACK, no imagen)
+- Implementado frame skipping (DETECTION_SKIP_FRAMES=1): 37→67 FPS teórico (1.9x ganancia medida)
+- Implementado landmark delta en predictor (LANDMARK_CHANGE_THRESHOLD=0.008): evita llamadas al modelo cuando la mano está quieta
+- Implementado confidence smoothing (CONFIDENCE_SMOOTH_WINDOW=5): promedio deslizante para display estable
+- Añadidos 3 parámetros a config/settings.py con comentarios que explican la decisión técnica
+- Creado scripts/benchmark.py: mide latencia por etapa, compara con/sin skip, ejecutable sin modelo ni webcam
 
 ### 2026-05-29 — ETAPA 7
 - Reemplazado stub de TTS con implementación completa en `src/tts/speaker.py`

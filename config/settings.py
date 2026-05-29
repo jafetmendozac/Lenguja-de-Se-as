@@ -28,6 +28,21 @@ MIN_TRACKING_CONFIDENCE  = 0.5   # Umbral para continuar siguiendo la mano
 PREDICTION_THRESHOLD = 0.75  # Confianza mínima para mostrar la predicción
 PREDICTION_HISTORY   = 5     # Frames consecutivos para confirmar una seña
 
+# ── Optimización de rendimiento ──────────────────────────────────────────────
+# MediaPipe en M2 tarda ~35ms independiente de resolución (cuello de botella = red neuronal).
+# Las optimizaciones relevantes son frame skipping y landmark delta.
+
+DETECTION_SKIP_FRAMES   = 1      # Ejecutar MediaPipe 1 de cada (N+1) frames.
+                                  # 0 = todos los frames. 1 = cada 2 frames (~37 FPS display).
+                                  # El resultado anterior se reutiliza en los frames saltados.
+
+LANDMARK_CHANGE_THRESHOLD = 0.008  # Distancia media mínima entre landmarks consecutivos
+                                    # para considerar que la mano se movió. Si está quieta,
+                                    # se reutiliza la última predicción sin llamar al modelo.
+
+CONFIDENCE_SMOOTH_WINDOW = 5      # Ventana del promedio deslizante de confianza para
+                                   # suavizar la barra de confianza en pantalla.
+
 # ── Señas LSP (Lengua de Señas Peruana) ─────────────────────────────────────
 # Orden alfabético para que coincida con el encoding del clasificador
 CLASSES = ["ayuda", "gracias", "hola", "no", "si"]
