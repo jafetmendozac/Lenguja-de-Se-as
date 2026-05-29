@@ -184,7 +184,9 @@ Lenguaje_Señas/
 | 6 | Predicción en tiempo real | ✅ COMPLETADA |
 | 7 | Text-to-speech | ✅ COMPLETADA |
 | 8 | Optimización | ✅ COMPLETADA |
-| 9 | Interfaz final | ⬜ PENDIENTE |
+| 9 | Interfaz final | ✅ COMPLETADA |
+
+### ✅ v1.0 COMPLETA — Pendiente: capturar dataset LSP y entrenar modelo
 
 ---
 
@@ -284,6 +286,16 @@ python main.py
 ---
 
 ## 12. Registro de Cambios (Changelog)
+
+### 2026-05-29 — ETAPA 9
+- Rediseñado completamente `src/ui/display.py` con layout de 3 zonas: barra superior, video, panel inferior
+- Método principal `render(frame, result, fps, state, history)` — un solo llamado renderiza todo
+- Barra superior: indicador ● de estado (verde/naranja/gris), título centrado, FPS con color semántico
+- Panel inferior: seña grande con sombra, etiqueta CONFIRMADA/Analizando, barra de confianza con color dinámico (rojo→amarillo→verde), fila de historial con opacidad degradada
+- Historial de señas confirmadas (deque maxlen=5) en main.py — evita duplicados con last_stable_label
+- TTS ahora solo dispara en transición a nueva seña estable (no en cada frame estable)
+- Métodos de compatibilidad mantenidos para scripts de etapas anteriores
+- Verificados todos los módulos: 0 errores de importación
 
 ### 2026-05-29 — ETAPA 8
 - Benchmark real en M2: MediaPipe 640x480 = 25.9ms, 320x240 = 33.8ms → resolución NO ayuda (cuello de botella = red neuronal XNNPACK, no imagen)
