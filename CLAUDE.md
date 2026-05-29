@@ -180,7 +180,7 @@ Lenguaje_Señas/
 | 2 | Configuración del entorno | ✅ COMPLETADA |
 | 3 | Detección de manos | ✅ COMPLETADA |
 | 4 | Captura de dataset LSP | ✅ COMPLETADA |
-| 5 | Entrenamiento del modelo | ⬜ PENDIENTE |
+| 5 | Entrenamiento del modelo | ✅ COMPLETADA |
 | 6 | Predicción en tiempo real | ⬜ PENDIENTE |
 | 7 | Text-to-speech | ⬜ PENDIENTE |
 | 8 | Optimización | ⬜ PENDIENTE |
@@ -284,6 +284,11 @@ python main.py
 ---
 
 ## 12. Registro de Cambios (Changelog)
+
+### 2026-05-29 — ETAPA 5
+- Implementado `src/recognition/model.py` — SignClassifier con Random Forest (300 árboles, class_weight=balanced, n_jobs=-1), métodos fit/predict/predict_batch/save/load; validado con datos sintéticos (save→load produce resultados idénticos)
+- Creado `scripts/train_model.py` — carga CSV, split 80/20 estratificado, validación cruzada 5-fold, reporte por clase, detección de sobreajuste
+- Creado `scripts/evaluate_model.py` — matriz de confusión normalizada (seaborn), importancia de landmarks por punto, reporte detallado; guarda gráficas en reports/
 
 ### 2026-05-29 — ETAPA 4
 - Actualizado `src/detection/hand_detector.py` con parámetro `mode="video"|"image"` para soportar tanto webcam como batch de imágenes
