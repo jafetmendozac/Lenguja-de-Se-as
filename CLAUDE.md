@@ -181,7 +181,7 @@ Lenguaje_Señas/
 | 3 | Detección de manos | ✅ COMPLETADA |
 | 4 | Captura de dataset LSP | ✅ COMPLETADA |
 | 5 | Entrenamiento del modelo | ✅ COMPLETADA |
-| 6 | Predicción en tiempo real | ⬜ PENDIENTE |
+| 6 | Predicción en tiempo real | ✅ COMPLETADA |
 | 7 | Text-to-speech | ⬜ PENDIENTE |
 | 8 | Optimización | ⬜ PENDIENTE |
 | 9 | Interfaz final | ⬜ PENDIENTE |
@@ -284,6 +284,12 @@ python main.py
 ---
 
 ## 12. Registro de Cambios (Changelog)
+
+### 2026-05-29 — ETAPA 6
+- Implementado `src/recognition/predictor.py` — SignPredictor con suavizado temporal (deque N=5, mayoría N-1), PredictionState con display_label y is_stable; reset() manual con tecla R
+- Creado `src/tts/speaker.py` — stub funcional (imprime en consola, no repite misma seña); se reemplaza en ETAPA 7
+- Actualizado `src/ui/display.py` — draw_info_panel ahora acepta is_stable: verde+grande si confirmada, amarillo+menor si tentativa, barra de confianza cambia de color según estado
+- Creado `main.py` — loop principal integrado con todos los módulos, check_model() con mensajes de error claros, controles Q/R/S, --no-tts y --camera CLI flags
 
 ### 2026-05-29 — ETAPA 5
 - Implementado `src/recognition/model.py` — SignClassifier con Random Forest (300 árboles, class_weight=balanced, n_jobs=-1), métodos fit/predict/predict_batch/save/load; validado con datos sintéticos (save→load produce resultados idénticos)
